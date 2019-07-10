@@ -27,6 +27,13 @@ type Client struct {
 	ContractTelephony          bool          `bson:"contract_telephony,omitempty" json:"-"`
 	ContractTelephonyWorldWide bool          `bson:"contract_telephony_world_wide"`
 	Obj                        Object        `bson:"object"`
+	Telnums                    []Telnum      `bson:"telnums"`
+}
+
+type Telnum struct {
+	Telnum      string `bson:"telnum"`
+	City        string `bson:"city"`
+	Domainscity string `bson:"domainscity"`
 }
 
 type Object struct {
@@ -98,12 +105,20 @@ func main() {
 
 	fmt.Println("client \"$gt\": 3: ", client)
 	client = Client{}
-	err = c.Find(bson.M{"val": bson.M{"$exists": false}}).One(&client)
+	err = c.Find(bson.M{"val": bson.M{"$exists": true}}).One(&client)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("client \"$gt\": 3: ", client)
+	fmt.Println("client \"$exists\": true: ", client)
+
+	client = Client{}
+	err = c.Find(bson.M{"telnums": bson.M{"$size": 1}}).One(&client)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("telnums \"$size\": 1: ", client)
 }
 
 type FakeMongo struct {
@@ -301,6 +316,10 @@ func (r Record) FieldMatch(f string, template bson.M) bool {
 			} else {
 				ret = value == nil
 			}
+		case "$size":
+			size := expected.(int)
+			arr, ok := value.([]interface{})
+			ret = ok && len(arr) == size
 		default:
 			panic(unimplemented)
 		}
