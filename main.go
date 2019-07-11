@@ -126,6 +126,16 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("client \"$not\": {$gt: 3}: ", clients3)
+
+	var clients4 []Client
+	err = c.Find(bson.M{"$and": []bson.M{
+		{"val": bson.M{"$gt": float64(4)}},
+		{"is_demo": true},
+	}}).All(&clients4)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("client \"$and\": ", clients4)
 }
 
 type FakeMongo struct {
@@ -251,7 +261,19 @@ func (r Record) Match(template bson.M) bool {
 	var ret bool
 	for k, expected := range template {
 		if isCmd(k) {
-			panic(unimplemented)
+			switch k {
+			case "$and":
+				nextTemplates := expected.([]bson.M)
+				// todo nextTemplates should be sorted by priority
+				for _, t := range nextTemplates {
+					ret = r.Match(t)
+					if !ret {
+						break
+					}
+				}
+			default:
+				panic(unimplemented)
+			}
 		} else if isObj(k) {
 			subFields := strings.Split(k, ".")
 			mainKey := subFields[0]
@@ -418,7 +440,7 @@ var testData = `
     "domain" : "nikita2",
     "cityId" : "9999",
     "tariff" : "ITooLabsPro",
-    "is_demo" : "",
+    "is_demo" : true,
 	"val": 6,
     "contract_signature" : true,
     "contract_telephony_world_wide" : true,

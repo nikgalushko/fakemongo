@@ -43,7 +43,7 @@ func CompareTo(a, b interface{}) string {
 			return "gt"
 		} else if a2 < b2 {
 			return "lt"
-		} else if a2 >= b2 {
+		} else if a2 >= b2 { // todo fix $lte $gte
 			return "gte"
 		} else if a2 <= b2 {
 			return "lte"
