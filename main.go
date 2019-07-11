@@ -119,6 +119,13 @@ func main() {
 	}
 
 	fmt.Println("telnums \"$size\": 1: ", client)
+
+	var clients3 []Client
+	err = c.Find(bson.M{"val": bson.M{"$not": bson.M{"$gte": float64(6)}}}).All(&clients3)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("client \"$not\": {$gt: 3}: ", clients3)
 }
 
 type FakeMongo struct {
@@ -320,6 +327,9 @@ func (r Record) FieldMatch(f string, template bson.M) bool {
 			size := expected.(int)
 			arr, ok := value.([]interface{})
 			ret = ok && len(arr) == size
+		case "$not":
+			nextTemplate := expected.(bson.M)
+			ret = !r.FieldMatch(f, nextTemplate)
 		default:
 			panic(unimplemented)
 		}
@@ -398,6 +408,7 @@ var testData = `
 {
     "domain" : "nikita95",
     "cityId" : "9999",
+	"val": 5,
     "tariff" : "ITooLabsPro",
     "is_demo" : false,
     "contract_signature" : true,
@@ -408,6 +419,7 @@ var testData = `
     "cityId" : "9999",
     "tariff" : "ITooLabsPro",
     "is_demo" : "",
+	"val": 6,
     "contract_signature" : true,
     "contract_telephony_world_wide" : true,
     "contract_telephony" : true,
