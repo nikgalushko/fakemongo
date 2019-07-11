@@ -136,6 +136,16 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("client \"$and\": ", clients4)
+
+	var clients5 []Client
+	err = c.Find(bson.M{"$or": []bson.M{
+		{"val": bson.M{"$gt": float64(4)}},
+		{"is_demo": true},
+	}}).All(&clients5)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("client \"$or\": ", clients5)
 }
 
 type FakeMongo struct {
@@ -268,6 +278,15 @@ func (r Record) Match(template bson.M) bool {
 				for _, t := range nextTemplates {
 					ret = r.Match(t)
 					if !ret {
+						break
+					}
+				}
+			case "$or":
+				nextTemplates := expected.([]bson.M)
+				// todo nextTemplates should be sorted by priority
+				for _, t := range nextTemplates {
+					ret = r.Match(t)
+					if ret {
 						break
 					}
 				}
