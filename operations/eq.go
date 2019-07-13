@@ -5,10 +5,12 @@ import (
 	"reflect"
 )
 
-type Eq struct{}
+type Eq struct {
+	DefaultOperator
+}
 
-func (e Eq) Match(expected, actual interface{}) (bool, error) {
-	return e.objectsAreEqual(expected, actual), nil
+func (e Eq) Do() bool {
+	return e.objectsAreEqual(e.Expected, e.Record[e.Field])
 }
 
 func (e Eq) objectsAreEqual(expected, actual interface{}) bool {

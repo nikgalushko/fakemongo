@@ -1,9 +1,5 @@
 package collection
 
-import (
-	"fakemongo/operations"
-)
-
 type Collection struct {
 	Name string
 	Data []Record
@@ -127,14 +123,3 @@ func (r Record) FieldMatch(f string, template bson.M) bool {
 
 	return true
 }*/
-
-type Expression struct {
-	Operator OperatorExpression
-}
-
-type OperatorExpression struct {
-	Cmd                    operations.Operator
-	Value                  interface{}
-	Field                  string
-	SubOperatorExpressions []OperatorExpression
-}

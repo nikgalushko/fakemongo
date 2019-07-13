@@ -8,8 +8,8 @@ import (
 
 type SelectorParser struct{}
 
-func (p SelectorParser) ParseQuery(query bson.M) []collection.Expression {
-	var result []collection.Expression
+func (p SelectorParser) ParseQuery(query bson.M) []operations.Expression {
+	var result []operations.Expression
 	for k, expression := range query {
 		key := collection.Key(k)
 		switch key.Type() {
@@ -23,10 +23,10 @@ func (p SelectorParser) ParseQuery(query bson.M) []collection.Expression {
 			default:
 				panic(expression)
 			}
-			result = append(result, collection.Expression{Operator: p.ParseOperatorExpression(e)})
+			result = append(result, operations.Expression{Operator: p.ParseOperatorExpression(e)})
 		case collection.DotNotation:
 		case collection.Literal:
-			e := collection.Expression{}
+			e := operations.Expression{}
 			e.Operator = p.ParseLiteralSubQuery(expression)
 			e.Operator.Field = k
 			result = append(result, e)
@@ -38,7 +38,7 @@ func (p SelectorParser) ParseQuery(query bson.M) []collection.Expression {
 	return result
 }
 
-func (p SelectorParser) ParseLiteralSubQuery(query interface{}) collection.OperatorExpression {
+func (p SelectorParser) ParseLiteralSubQuery(query interface{}) operations.OperatorExpression {
 	switch query.(type) {
 	case bson.M:
 		for k, value := range query.(bson.M) {
@@ -48,19 +48,19 @@ func (p SelectorParser) ParseLiteralSubQuery(query interface{}) collection.Opera
 		}
 	}
 
-	return collection.OperatorExpression{
+	return operations.OperatorExpression{
 		Value: query,
-		Cmd:   operations.Eq{},
+		Cmd:   "$eq",
 	}
 }
 
-func (p SelectorParser) ParseOperatorExpression(query bson.M) collection.OperatorExpression {
+func (p SelectorParser) ParseOperatorExpression(query bson.M) operations.OperatorExpression {
 	for cmd, value := range query {
-		e := collection.OperatorExpression{Cmd: operations.New(cmd)}
-		switch e.Cmd.(type) {
-		case operations.Eq, operations.Exists:
+		e := operations.OperatorExpression{Cmd: cmd}
+		switch cmd {
+		case "$eq", "$exists":
 			e.Value = value
-		case operations.And:
+		case "$and":
 			// todo to slice
 			slice := value.([]bson.M)
 			for _, s := range slice {
@@ -74,5 +74,5 @@ func (p SelectorParser) ParseOperatorExpression(query bson.M) collection.Operato
 		return e
 	}
 
-	return collection.OperatorExpression{}
+	return operations.OperatorExpression{}
 }

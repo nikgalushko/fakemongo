@@ -21,3 +21,25 @@ func (r Record) WithFields(fields bson.M) Record {
 
 	return ret
 }
+
+/*
+type OperatorExpression struct {
+	Cmd                    operations.Operator
+	Value                  interface{}
+	Field                  string
+	SubOperatorExpressions []OperatorExpression
+}
+
+*/
+
+/*func (r Record) MatchAll(expressions []Expression) bool {
+	for _, e := range expressions {
+		op := e.Operator
+		ret, _ := op.Cmd.Match(op.Value, r[op.Field])
+		if !ret {
+			return false
+		}
+	}
+
+	return true
+}*/

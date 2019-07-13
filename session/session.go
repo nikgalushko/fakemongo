@@ -5,18 +5,23 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
+type Session struct {
+	data map[string][]collection.Record
+}
+
 type Query interface {
 	One(interface{}) error
 	All(interface{}) error
 	Select(bson.M) Query
 }
 
-type FindOp struct {
-	query    bson.M
-	foundAt  int
-	selector bson.M
-	parser   SelectorParser
-	c        *collection.Collection
+func NewSession(data map[string][]collection.Record) Session {
+	return Session{data: data}
+}
+
+// todo query must be an interface{}
+func (s Session) Find(collectionName string, query bson.M) Query {
+	return NewFinder(query, s.data[collectionName])
 }
 
 /*func (o *FindOp) One(result interface{}) error {

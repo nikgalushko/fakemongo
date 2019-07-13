@@ -1,10 +1,17 @@
 package operations
 
-type And struct{}
+type And struct {
+	DefaultOperator
+}
 
-func (a And) Match(expected, actual interface{}) (bool, error) {
-	panic("and is unimplemented")
-	return false, nil
+func (a And) Do() bool {
+	for _, e := range a.SubOperatorExpressions {
+		if !e.Match(a.Record) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (a And) Name() string {
