@@ -146,6 +146,15 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("client \"$or\": ", clients5)
+
+	client = Client{}
+	err = c.Find(bson.M{"telnums.telnum": "78003576242"}).One(&client)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("telnums.telnum: \"78003576242\"", client)
+
 }
 
 type FakeMongo struct {
@@ -293,7 +302,7 @@ func (r Record) Match(template bson.M) bool {
 			default:
 				panic(unimplemented)
 			}
-		} else if isObj(k) {
+		} else if isDotNottation(k) {
 			subFields := strings.Split(k, ".")
 			mainKey := subFields[0]
 			otherKeys := strings.Join(subFields[1:], ".")
@@ -371,6 +380,8 @@ func (r Record) FieldMatch(f string, template bson.M) bool {
 		case "$not":
 			nextTemplate := expected.(bson.M)
 			ret = !r.FieldMatch(f, nextTemplate)
+		case "$all":
+			panic(unimplemented)
 		default:
 			panic(unimplemented)
 		}
@@ -387,7 +398,7 @@ func isCmd(key string) bool {
 	return strings.HasPrefix(key, "$")
 }
 
-func isObj(key string) bool {
+func isDotNottation(key string) bool {
 	return strings.Contains(key, ".")
 }
 
@@ -442,6 +453,15 @@ func ObjectsAreEqual(expected, actual interface{}) bool {
 		return exp == nil && act == nil
 	}
 	return bytes.Equal(exp, act)
+}
+
+func ToSlice(s interface{}) []interface{} {
+	v := reflect.ValueOf(s)
+	slice := make([]interface{}, v.Len())
+	for i := 0; i < v.Len(); i++ {
+		slice[i] = v.Index(i).Interface()
+	}
+	return slice
 }
 
 var testData = `
