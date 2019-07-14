@@ -64,6 +64,8 @@ func NewOperator(cmd string) Operator {
 		return &And{}
 	case "$exists":
 		return &Exists{}
+	case "$elemMatch":
+		return &ElemMatch{}
 	/*case "$or":
 		return Or{}
 	case "$nin":

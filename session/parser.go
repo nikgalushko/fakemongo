@@ -21,7 +21,7 @@ func (p SelectorParser) ParseQuery(query bson.M) []operations.Expression {
 			case []bson.M:
 				e = bson.M{k: expression}
 			default:
-				panic(expression)
+				e = bson.M{k: expression}
 			}
 			result = append(result, operations.Expression{Operator: p.ParseOperatorExpression(e)})
 		case collection.DotNotation:
@@ -67,6 +67,9 @@ func (p SelectorParser) ParseOperatorExpression(query bson.M) operations.Operato
 				e.SubOperatorExpressions = append(e.SubOperatorExpressions, p.ParseQuery(s)[0].Operator)
 			}
 			return e
+		case "$elemMatch":
+			v := value.(bson.M)
+			e.SubOperatorExpressions = append(e.SubOperatorExpressions, p.ParseQuery(v)[0].Operator)
 		default:
 			panic(cmd)
 		}
