@@ -51,7 +51,7 @@ func TestFinder_One_ElemMatch_FlatArray(t *testing.T) {
 }
 
 func TestFinder_One_ElemMatch_ArrayOfObjects(t *testing.T) {
-	f := NewFinder(bson.M{"arr": bson.M{"$elemMatch": bson.M{"price": 45}}}, testData)
+	f := NewFinder(bson.M{"arr": bson.M{"$elemMatch": bson.M{"price": bson.M{"$gte": 36}}}}, testData)
 	m := make(bson.M)
 	err := f.One(&m)
 	assert.NoError(t, err)

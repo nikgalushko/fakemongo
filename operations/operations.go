@@ -66,6 +66,14 @@ func NewOperator(cmd string) Operator {
 		return &Exists{}
 	case "$elemMatch":
 		return &ElemMatch{}
+	case "$gt":
+		return &Gt{}
+	case "$gte":
+		return &Gte{}
+	case "$lt":
+		return &Lt{}
+	case "$lte":
+		return &Lte{}
 	/*case "$or":
 		return Or{}
 	case "$nin":

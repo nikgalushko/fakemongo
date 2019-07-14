@@ -58,7 +58,7 @@ func (p SelectorParser) ParseOperatorExpression(query bson.M) operations.Operato
 	for cmd, value := range query {
 		e := operations.OperatorExpression{Cmd: cmd}
 		switch cmd {
-		case "$eq", "$exists":
+		case "$eq", "$exists", "$gt", "$gte", "$lt", "$lte":
 			e.Value = value
 		case "$and":
 			// todo to slice
