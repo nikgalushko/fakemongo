@@ -6,7 +6,7 @@ import (
 )
 
 type Session struct {
-	data map[string][]collection.Record
+	data map[string]collection.Collection
 }
 
 type Query interface {
@@ -15,13 +15,17 @@ type Query interface {
 	Select(bson.M) Query
 }
 
-func NewSession(data map[string][]collection.Record) Session {
+func NewSession(collections []collection.Collection) Session {
+	data := make(map[string]collection.Collection, len(collections))
+	for _, c := range collections {
+		data[c.Name] = c
+	}
 	return Session{data: data}
 }
 
 // todo query must be an interface{}
 func (s Session) Find(collectionName string, query bson.M) Query {
-	return NewFinder(query, s.data[collectionName])
+	return NewFinder(query, s.data[collectionName].Cursor())
 }
 
 /*func (o *FindOp) One(result interface{}) error {

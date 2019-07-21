@@ -19,7 +19,7 @@ var testData = []collection.Record{
 }
 
 func TestFinder_One_SimpleFields(t *testing.T) {
-	f := NewFinder(bson.M{"e": 5, "f": 12}, testData)
+	f := NewFinder(bson.M{"e": 5, "f": 12}, cursor())
 	m := make(bson.M)
 	err := f.One(&m)
 	assert.NoError(t, err)
@@ -27,7 +27,7 @@ func TestFinder_One_SimpleFields(t *testing.T) {
 }
 
 func TestFinder_One_OperatorAnd(t *testing.T) {
-	f := NewFinder(bson.M{"$and": []bson.M{{"f": bson.M{"$eq": 10}}, {"arr": bson.M{"$exists": true}}}}, testData)
+	f := NewFinder(bson.M{"$and": []bson.M{{"f": bson.M{"$eq": 10}}, {"arr": bson.M{"$exists": true}}}}, cursor())
 	m := make(bson.M)
 	err := f.One(&m)
 	assert.NoError(t, err)
@@ -35,15 +35,15 @@ func TestFinder_One_OperatorAnd(t *testing.T) {
 }
 
 func TestFinder_Select(t *testing.T) {
-	f := NewFinder(bson.M{"e": 5}, testData).Select(bson.M{"obj": 1})
+	f := NewFinder(bson.M{"e": 5}, cursor()).Select(bson.M{"obj": 1})
 	m := make(bson.M)
 	err := f.One(&m)
 	assert.NoError(t, err)
-	assert.Equal(t, bson.M{"obj": testData[4]["obj"]}, (m))
+	assert.Equal(t, bson.M{"obj": testData[4]["obj"]}, m)
 }
 
 func TestFinder_One_ElemMatch_FlatArray(t *testing.T) {
-	f := NewFinder(bson.M{"arr": bson.M{"$elemMatch": bson.M{"$eq": "s"}}}, testData)
+	f := NewFinder(bson.M{"arr": bson.M{"$elemMatch": bson.M{"$eq": "s"}}}, cursor())
 	m := make(bson.M)
 	err := f.One(&m)
 	assert.NoError(t, err)
@@ -51,7 +51,7 @@ func TestFinder_One_ElemMatch_FlatArray(t *testing.T) {
 }
 
 func TestFinder_One_ElemMatch_ArrayOfObjects(t *testing.T) {
-	f := NewFinder(bson.M{"arr": bson.M{"$elemMatch": bson.M{"price": bson.M{"$gte": 36}}}}, testData)
+	f := NewFinder(bson.M{"arr": bson.M{"$elemMatch": bson.M{"price": bson.M{"$gte": 36}}}}, cursor())
 	m := make(bson.M)
 	err := f.One(&m)
 	assert.NoError(t, err)
@@ -59,4 +59,8 @@ func TestFinder_One_ElemMatch_ArrayOfObjects(t *testing.T) {
 	assert.Equal(t, testData[6]["e"], m["e"])
 	assert.Equal(t, testData[6]["shop"], m["shop"])
 	assert.Equal(t, utils.ToSlice(testData[6]["arr"]), utils.ToSlice(m["arr"]))
+}
+
+func cursor() *collection.Cursor {
+	return collection.NewCursor(testData)
 }

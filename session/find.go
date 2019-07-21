@@ -12,12 +12,12 @@ type Finder struct {
 	foundAt     int
 	selector    bson.M
 	expressions []operations.Expression
-	data        []collection.Record
+	c           *collection.Cursor
 }
 
 // todo query must be an interface{}
-func NewFinder(query bson.M, data []collection.Record) Finder {
-	f := Finder{query: query, data: data}
+func NewFinder(query bson.M, c *collection.Cursor) Finder {
+	f := Finder{query: query, c: c}
 	f.expressions = SelectorParser{}.ParseQuery(query)
 
 	return f
@@ -30,7 +30,11 @@ func (f Finder) Select(selector bson.M) Query {
 }
 
 func (f Finder) One(result interface{}) error {
-	for _, r := range f.data {
+	var (
+		r   collection.Record
+		err error
+	)
+	for ; err == nil; r, err = f.c.Next() {
 		matched := true
 		for _, e := range f.expressions {
 			if !e.Operator.Match(r) {

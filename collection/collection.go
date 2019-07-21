@@ -2,7 +2,24 @@ package collection
 
 type Collection struct {
 	Name string
-	Data []Record
+	data []Record
+	c    *Cursor
+}
+
+func NewCollection(name string, data []Record) Collection {
+	return Collection{
+		Name: name,
+		data: data,
+		c:    NewCursor(data),
+	}
+}
+
+func (c Collection) Cursor() *Cursor {
+	if c.c.lastError != nil {
+		_ = c.c.Seek(0)
+	}
+
+	return c.c
 }
 
 /*func (r Record) Match(template bson.M) bool {
