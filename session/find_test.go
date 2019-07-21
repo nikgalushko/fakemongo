@@ -15,7 +15,7 @@ var testData = []collection.Record{
 	{"e": 4},
 	{"f": 12, "obj": bson.M{"e": []interface{}{1, 2, 3}, "f": 18.2}, "e": 5},
 	{"e": 5, "arr": []bson.M{{"price": 12}, {"price": 14}}, "shop": "#1"},
-	{"e": 7, "arr": []bson.M{{"price": 45}, {"price": 36}}, "shop": "#2"},
+	{"e": 7, "arr": []bson.M{{"price": 45, "g": 14}, {"price": 36, "g": 16}}, "shop": "#2"},
 }
 
 func TestFinder_One_SimpleFields(t *testing.T) {
@@ -51,7 +51,7 @@ func TestFinder_One_ElemMatch_FlatArray(t *testing.T) {
 }
 
 func TestFinder_One_ElemMatch_ArrayOfObjects(t *testing.T) {
-	f := NewFinder(bson.M{"arr": bson.M{"$elemMatch": bson.M{"price": bson.M{"$gte": 36}}}}, cursor())
+	f := NewFinder(bson.M{"arr": bson.M{"$elemMatch": bson.M{"g": bson.M{"$exists": true}, "price": bson.M{"$gte": 36}}}}, cursor())
 	m := make(bson.M)
 	err := f.One(&m)
 	assert.NoError(t, err)

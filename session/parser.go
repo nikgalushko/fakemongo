@@ -69,7 +69,10 @@ func (p SelectorParser) ParseOperatorExpression(query bson.M) operations.Operato
 			return e
 		case "$elemMatch":
 			v := value.(bson.M)
-			e.SubOperatorExpressions = append(e.SubOperatorExpressions, p.ParseQuery(v)[0].Operator)
+			parsed := p.ParseQuery(v)
+			for _, expression := range parsed {
+				e.SubOperatorExpressions = append(e.SubOperatorExpressions, expression.Operator)
+			}
 		default:
 			panic(cmd)
 		}
