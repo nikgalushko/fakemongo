@@ -4,7 +4,7 @@ type And struct {
 	DefaultOperator
 }
 
-func (a And) Do() bool {
+func (a And) Do() interface{} {
 	for _, e := range a.SubOperatorExpressions {
 		if !e.Match(a.Record) {
 			return false

@@ -2,6 +2,7 @@ package session
 
 import (
 	"fakemongo/collection"
+	"fmt"
 	"github.com/globalsign/mgo/bson"
 )
 
@@ -28,47 +29,35 @@ func (s Session) Find(collectionName string, query bson.M) Query {
 	return NewFinder(query, s.data[collectionName].Cursor())
 }
 
-/*func (o *FindOp) One(result interface{}) error {
-	for i, r := range o.c.Data {
-		if r.Match(o.query) {
-			o.foundAt = i
-			r = r.WithFields(o.selector)
-			data, _ := bson.Marshal(r)
-			return bson.Unmarshal(data, result)
-		}
-	}
-	return nil
+// todo query/set must be an interface{}
+func (s Session) Update(collectionName string, query, update bson.M) error {
+	u := Updater{c: s.data[collectionName].Cursor()}
+	return u.Update(query, update)
 }
 
-func (o FindOp) All(result interface{}) error {
-	var ret []collection.Record
-	resultv := reflect.ValueOf(result)
-	slicev := resultv.Elem()
-	elemt := slicev.Type().Elem()
+func (s Session) Insert(collectionName string, docs ...interface{}) error {
+	for _, d := range docs {
+		var item bson.M
+		switch d.(type) {
+		case bson.M:
+			item = d.(bson.M)
+		default:
+			data, err := bson.Marshal(d)
+			if err != nil {
+				return err
+			}
 
-	for _, r := range o.c.Data {
-		if r.Match(o.query) {
-			r = r.WithFields(o.selector)
-			ret = append(ret, r)
+			err = bson.Unmarshal(data, &item)
+			if err != nil {
+				return err
+			}
+
+			fmt.Println(item)
 		}
+
+		c := s.data[collectionName].Cursor()
+		c.Insert(collection.Record(item))
 	}
-
-	for _, r := range ret {
-		elemp := reflect.New(elemt)
-		data, _ := bson.Marshal(r)
-		err := bson.Unmarshal(data, elemp.Interface())
-		if err != nil {
-			panic(err)
-		}
-
-		slicev.Set(reflect.Append(slicev, elemp.Elem()))
-	}
-
-	resultv.Elem().Set(slicev.Slice(0, len(ret)))
 
 	return nil
-}*/
-
-/*func (o FindOp) Select(selector bson.M) Query {
-	return &FindOp{query: o.query, selector: selector, c: o.c, foundAt: o.foundAt}
-}*/
+}

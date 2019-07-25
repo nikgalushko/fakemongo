@@ -15,7 +15,7 @@ func (e ElemMatch) Name() string {
 	return "$elemMatch"
 }
 
-func (e ElemMatch) Do() bool {
+func (e ElemMatch) Do() interface{} {
 	value := e.Record[e.Field]
 	if value == nil {
 		return false

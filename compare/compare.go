@@ -6,13 +6,6 @@ import (
 )
 
 func CompareTo(a, b interface{}) string {
-	//aType := reflect.TypeOf(a)
-	//bType := reflect.TypeOf(b)
-	//fmt.Println(aType.Name(), bType.Name())
-	/*if !areTypeSame(aType, bType) {
-		return "err"
-	}*/
-
 	switch a.(type) {
 	case int:
 		b2, ok := b.(int)

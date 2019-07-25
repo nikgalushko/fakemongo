@@ -21,11 +21,22 @@ func (o OperatorExpression) Match(record collection.Record) bool {
 	cmd.SetArgs(o.SubOperatorExpressions)
 	cmd.SetRecord(record)
 
-	return cmd.Do()
+	return cmd.Do().(bool)
+}
+
+func (o OperatorExpression) Update(record collection.Record) collection.Record {
+	cmd := NewOperator(o.Cmd)
+
+	cmd.SetExpectedValue(o.Value)
+	cmd.SetRetrievalField(o.Field)
+	cmd.SetArgs(o.SubOperatorExpressions)
+	cmd.SetRecord(record)
+
+	return cmd.Do().(collection.Record)
 }
 
 type Operator interface {
-	Do() bool
+	Do() interface{}
 	SetExpectedValue(interface{})
 	SetRetrievalField(string)
 	SetArgs([]OperatorExpression)
@@ -74,6 +85,8 @@ func NewOperator(cmd string) Operator {
 		return &Lt{}
 	case "$lte":
 		return &Lte{}
+	case "$set":
+		return &Set{}
 	/*case "$or":
 		return Or{}
 	case "$nin":

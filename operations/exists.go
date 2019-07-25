@@ -4,7 +4,7 @@ type Exists struct {
 	DefaultOperator
 }
 
-func (e Exists) Do() bool {
+func (e Exists) Do() interface{} {
 	_, ok := e.Record[e.Field]
 	return Eq{}.objectsAreEqual(e.Expected, ok)
 }

@@ -4,7 +4,7 @@ type Gt struct {
 	DefaultOperator
 }
 
-func (g Gt) Do() bool {
+func (g Gt) Do() interface{} {
 	actual := g.Record[g.Field]
 	cmp, ok := compare(actual, g.Expected)
 	return ok && cmp == greaterThan

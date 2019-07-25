@@ -4,7 +4,7 @@ type Lt struct {
 	DefaultOperator
 }
 
-func (l Lt) Do() bool {
+func (l Lt) Do() interface{} {
 	actual := l.Record[l.Field]
 	cmp, ok := compare(actual, l.Expected)
 	return ok && cmp == lessThan

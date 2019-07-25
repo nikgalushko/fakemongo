@@ -62,5 +62,5 @@ func TestFinder_One_ElemMatch_ArrayOfObjects(t *testing.T) {
 }
 
 func cursor() *collection.Cursor {
-	return collection.NewCursor(testData)
+	return collection.NewCursor(&testData)
 }

@@ -82,3 +82,49 @@ func (p SelectorParser) ParseOperatorExpression(query bson.M) operations.Operato
 
 	return operations.OperatorExpression{}
 }
+
+type UpdateParameterParser struct{}
+
+type UpdateOperator struct {
+	Cmd        string
+	Operations []operations.OperatorExpression
+}
+
+func (p UpdateParameterParser) ParseUpdate(update bson.M) []operations.OperatorExpression {
+	var result []operations.OperatorExpression
+	for k, v := range update {
+		key := collection.Key(k)
+		if key.IsCmd() {
+			switch k {
+			case "$set":
+				fields := v.(bson.M)
+				var ops []operations.OperatorExpression
+				for f, v := range fields {
+					op := operations.OperatorExpression{Cmd: "$set"}
+					op.Value = v
+					op.Field = f
+
+					ops = append(ops, op)
+				}
+				result = append(result, ops...)
+			}
+		} else {
+			panic("unimplemented")
+		}
+	}
+
+	return result
+}
+
+type FiledType int
+
+const (
+	Object FiledType = iota
+	Array
+)
+
+type DotNotation struct {
+	Object   string
+	Type     FiledType
+	SubField string
+}

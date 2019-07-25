@@ -5,13 +5,16 @@ import "errors"
 var EOF = errors.New("EOF")
 
 type Cursor struct {
-	data            []Record
+	data            *[]Record
 	currentPosition uint
 	prevPosition    uint
 	lastError       error
 }
 
-func NewCursor(data []Record) *Cursor {
+func NewCursor(data *[]Record) *Cursor {
+	if data == nil {
+		data = &[]Record{}
+	}
 	return &Cursor{
 		data:            data,
 		currentPosition: 0,
@@ -20,7 +23,7 @@ func NewCursor(data []Record) *Cursor {
 }
 
 func (c *Cursor) Seek(position uint) error {
-	if position >= uint(len(c.data)) {
+	if position >= uint(len(*c.data)) {
 		err := errors.New("new position is greater than data length")
 		c.lastError = err
 		return err
@@ -40,7 +43,8 @@ func (c *Cursor) Next() (Record, error) {
 		return nil, EOF
 	}
 
-	r := c.data[c.currentPosition]
+	data := *c.data
+	r := data[c.currentPosition]
 	c.prevPosition = c.currentPosition
 	c.currentPosition += 1
 	c.lastError = nil
@@ -53,9 +57,24 @@ func (c *Cursor) Current() (Record, error) {
 		return nil, c.lastError
 	}
 
-	return c.data[c.prevPosition], nil
+	data := *c.data
+	return data[c.prevPosition], nil
+}
+
+func (c *Cursor) SetCurrent(r Record) {
+	data := *c.data
+	data[c.prevPosition] = r
+
+	*c.data = data
+}
+
+func (c *Cursor) Insert(r Record) {
+	data := *c.data
+	data = append(data, r)
+
+	*c.data = data
 }
 
 func (c Cursor) HasNext() bool {
-	return c.currentPosition < uint(len(c.data))
+	return c.currentPosition < uint(len(*c.data))
 }

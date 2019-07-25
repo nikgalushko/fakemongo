@@ -9,7 +9,7 @@ type Eq struct {
 	DefaultOperator
 }
 
-func (e Eq) Do() bool {
+func (e Eq) Do() interface{} {
 	return e.objectsAreEqual(e.Expected, e.Record[e.Field])
 }
 
