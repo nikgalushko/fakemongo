@@ -18,18 +18,15 @@ func (p SelectorParser) ParseQuery(query bson.M) []operations.Expression {
 			switch expression.(type) {
 			case bson.M:
 				e = expression.(bson.M)
-			case []bson.M:
-				e = bson.M{k: expression}
 			default:
 				e = bson.M{k: expression}
 			}
-			result = append(result, operations.Expression{Operator: p.ParseOperatorExpression(e)})
+			result = append(result, p.ParseOperatorExpression(e))
 		case collection.DotNotation:
 		case collection.Literal:
-			e := operations.Expression{}
-			e.Operator = p.ParseLiteralSubQuery(expression)
-			e.Operator.Field = k
-			result = append(result, e)
+			op := p.ParseLiteralSubQuery(expression)
+			op.Field = k
+			result = append(result, op)
 		default:
 			panic(key)
 		}
@@ -64,14 +61,14 @@ func (p SelectorParser) ParseOperatorExpression(query bson.M) operations.Operato
 			// todo to slice
 			slice := value.([]bson.M)
 			for _, s := range slice {
-				e.SubOperatorExpressions = append(e.SubOperatorExpressions, p.ParseQuery(s)[0].Operator)
+				e.SubOperatorExpressions = append(e.SubOperatorExpressions, p.ParseQuery(s)[0])
 			}
 			return e
 		case "$elemMatch":
 			v := value.(bson.M)
 			parsed := p.ParseQuery(v)
 			for _, expression := range parsed {
-				e.SubOperatorExpressions = append(e.SubOperatorExpressions, expression.Operator)
+				e.SubOperatorExpressions = append(e.SubOperatorExpressions, expression)
 			}
 		default:
 			panic(cmd)
@@ -114,17 +111,4 @@ func (p UpdateParameterParser) ParseUpdate(update bson.M) []operations.OperatorE
 	}
 
 	return result
-}
-
-type FiledType int
-
-const (
-	Object FiledType = iota
-	Array
-)
-
-type DotNotation struct {
-	Object   string
-	Type     FiledType
-	SubField string
 }

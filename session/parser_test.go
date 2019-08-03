@@ -1,6 +1,7 @@
 package session
 
 import (
+	"fakemongo/operations"
 	"github.com/globalsign/mgo/bson"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -18,7 +19,7 @@ func TestSelectorParser_ParseQuery(t *testing.T) {
 	first := 0
 	second := 1
 	for i, e := range expressions {
-		if e.Operator.Field == "a" {
+		if e.(operations.OperatorExpression).Field == "a" {
 			first = i
 		} else {
 			second = i
@@ -26,23 +27,27 @@ func TestSelectorParser_ParseQuery(t *testing.T) {
 	}
 
 	assert.Len(t, expressions, 2)
-	assert.Len(t, expressions[second].Operator.SubOperatorExpressions, 2)
+	assert.Len(t, expressions[second].(operations.OperatorExpression).SubOperatorExpressions, 2)
 
-	assert.Equal(t, "a", expressions[first].Operator.Field)
-	assert.Equal(t, "$eq", expressions[first].Operator.Cmd)
-	assert.Equal(t, 10, expressions[first].Operator.Value)
+	firstExpression := expressions[first].(operations.OperatorExpression)
+	assert.Equal(t, "a", firstExpression.Field)
+	assert.Equal(t, "$eq", firstExpression.Cmd)
+	assert.Equal(t, 10, firstExpression.Value)
 
-	assert.Equal(t, "$and", expressions[second].Operator.Cmd)
-	assert.Nil(t, expressions[second].Operator.Value)
+	secondExpression := expressions[second].(operations.OperatorExpression)
+	assert.Equal(t, "$and", secondExpression.Cmd)
+	assert.Nil(t, secondExpression.Value)
 
-	subOperators := expressions[second].Operator.SubOperatorExpressions
-	assert.Equal(t, "$exists", subOperators[first].Cmd)
-	assert.Equal(t, true, subOperators[first].Value)
-	assert.Equal(t, "c", subOperators[first].Field)
+	subOperators := secondExpression.SubOperatorExpressions
+	firstSubOperation := subOperators[first].(operations.OperatorExpression)
+	assert.Equal(t, "$exists", firstSubOperation.Cmd)
+	assert.Equal(t, true, firstSubOperation.Value)
+	assert.Equal(t, "c", firstSubOperation.Field)
 
-	assert.Equal(t, "$eq", subOperators[second].Cmd)
-	assert.Equal(t, []string{"7", "8"}, subOperators[second].Value)
-	assert.Equal(t, "d", subOperators[second].Field)
+	secondSubOperation := subOperators[second].(operations.OperatorExpression)
+	assert.Equal(t, "$eq", secondSubOperation.Cmd)
+	assert.Equal(t, []string{"7", "8"}, secondSubOperation.Value)
+	assert.Equal(t, "d", secondSubOperation.Field)
 
 }
 
@@ -52,11 +57,12 @@ func TestSelectorParser_ParseQuery_Exists(t *testing.T) {
 	expressions := p.ParseQuery(bson.M{"c": bson.M{"$exists": true}})
 
 	assert.Len(t, expressions, 1)
-	assert.Nil(t, expressions[0].Operator.SubOperatorExpressions)
+	assert.Nil(t, expressions[0].(operations.OperatorExpression).SubOperatorExpressions)
 
-	assert.Equal(t, "c", expressions[0].Operator.Field)
-	assert.Equal(t, "$exists", expressions[0].Operator.Cmd)
-	assert.Equal(t, true, expressions[0].Operator.Value)
+	firstExpression := expressions[0].(operations.OperatorExpression)
+	assert.Equal(t, "c", firstExpression.Field)
+	assert.Equal(t, "$exists", firstExpression.Cmd)
+	assert.Equal(t, true, firstExpression.Value)
 }
 
 func TestSelectorParser_ParseQuery_ElemMatch(t *testing.T) {
@@ -66,7 +72,7 @@ func TestSelectorParser_ParseQuery_ElemMatch(t *testing.T) {
 
 	assert.Len(t, expressions, 1)
 
-	op := expressions[0].Operator
+	op := expressions[0].(operations.OperatorExpression)
 	assert.Equal(t, "arr", op.Field)
 	assert.Equal(t, "$elemMatch", op.Cmd)
 	assert.Len(t, op.SubOperatorExpressions, 2)
@@ -75,18 +81,18 @@ func TestSelectorParser_ParseQuery_ElemMatch(t *testing.T) {
 	second := 1
 
 	for i, o := range op.SubOperatorExpressions {
-		if o.Field == "a" {
+		if o.(operations.OperatorExpression).Field == "a" {
 			first = i
 		} else {
 			second = i
 		}
 	}
 
-	assert.Equal(t, "a", op.SubOperatorExpressions[first].Field)
-	assert.Equal(t, "$eq", op.SubOperatorExpressions[first].Cmd)
-	assert.Equal(t, 2, op.SubOperatorExpressions[first].Value)
+	assert.Equal(t, "a", op.SubOperatorExpressions[first].(operations.OperatorExpression).Field)
+	assert.Equal(t, "$eq", op.SubOperatorExpressions[first].(operations.OperatorExpression).Cmd)
+	assert.Equal(t, 2, op.SubOperatorExpressions[first].(operations.OperatorExpression).Value)
 
-	assert.Equal(t, "d", op.SubOperatorExpressions[second].Field)
-	assert.Equal(t, "$gte", op.SubOperatorExpressions[second].Cmd)
-	assert.Equal(t, 14, op.SubOperatorExpressions[second].Value)
+	assert.Equal(t, "d", op.SubOperatorExpressions[second].(operations.OperatorExpression).Field)
+	assert.Equal(t, "$gte", op.SubOperatorExpressions[second].(operations.OperatorExpression).Cmd)
+	assert.Equal(t, 14, op.SubOperatorExpressions[second].(operations.OperatorExpression).Value)
 }

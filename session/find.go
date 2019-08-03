@@ -37,7 +37,7 @@ func (f Finder) One(result interface{}) error {
 	for ; err == nil; r, err = f.c.Next() {
 		matched := true
 		for _, e := range f.expressions {
-			if !e.Operator.Match(r) {
+			if !e.Match(r) {
 				matched = false
 				break
 			}

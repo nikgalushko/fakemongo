@@ -2,91 +2,63 @@ package operations
 
 import "fakemongo/collection"
 
-type Expression struct {
-	Operator OperatorExpression
+type Expression interface {
+	Match(collection.Record) bool
+	Update(collection.Record) collection.Record
 }
 
 type OperatorExpression struct {
 	Cmd                    string
 	Value                  interface{}
 	Field                  string
-	SubOperatorExpressions []OperatorExpression
+	SubOperatorExpressions []Expression
 }
 
 func (o OperatorExpression) Match(record collection.Record) bool {
-	cmd := NewOperator(o.Cmd)
-
-	cmd.SetExpectedValue(o.Value)
-	cmd.SetRetrievalField(o.Field)
-	cmd.SetArgs(o.SubOperatorExpressions)
-	cmd.SetRecord(record)
+	cmd := NewOperator(o.Cmd, o.Value, o.Field, o.SubOperatorExpressions, record)
 
 	return cmd.Do().(bool)
 }
 
 func (o OperatorExpression) Update(record collection.Record) collection.Record {
-	cmd := NewOperator(o.Cmd)
-
-	cmd.SetExpectedValue(o.Value)
-	cmd.SetRetrievalField(o.Field)
-	cmd.SetArgs(o.SubOperatorExpressions)
-	cmd.SetRecord(record)
+	cmd := NewOperator(o.Cmd, o.Value, o.Field, o.SubOperatorExpressions, record)
 
 	return cmd.Do().(collection.Record)
 }
 
 type Operator interface {
 	Do() interface{}
-	SetExpectedValue(interface{})
-	SetRetrievalField(string)
-	SetArgs([]OperatorExpression)
-	SetRecord(collection.Record)
 	Name() string
 }
 
 type DefaultOperator struct {
 	Expected               interface{}
 	Field                  string
-	SubOperatorExpressions []OperatorExpression
+	SubOperatorExpressions []Expression
 	Record                 collection.Record
 }
 
-func (d *DefaultOperator) SetExpectedValue(v interface{}) {
-	d.Expected = v
-}
-
-func (d *DefaultOperator) SetRetrievalField(f string) {
-	d.Field = f
-}
-
-func (d *DefaultOperator) SetArgs(ops []OperatorExpression) {
-	d.SubOperatorExpressions = ops
-}
-
-func (d *DefaultOperator) SetRecord(r collection.Record) {
-	d.Record = r
-}
-
-func NewOperator(cmd string) Operator {
+func NewOperator(cmd string, v interface{}, f string, args []Expression, r collection.Record) Operator {
+	d := DefaultOperator{Expected: v, Field: f, SubOperatorExpressions: args, Record: r}
 	switch cmd {
 	case "$eq":
-		return &Eq{}
+		return &Eq{d}
 	case "$and":
-		return &And{}
+		return &And{d}
 	case "$exists":
-		return &Exists{}
+		return &Exists{d}
 	case "$elemMatch":
-		return &ElemMatch{}
+		return &ElemMatch{d}
 	case "$gt":
-		return &Gt{}
+		return &Gt{d}
 	case "$gte":
-		return &Gte{}
+		return &Gte{d}
 	case "$lt":
-		return &Lt{}
+		return &Lt{d}
 	case "$lte":
-		return &Lte{}
+		return &Lte{d}
 	case "$set":
-		return &Set{}
+		return &Set{d}
 	/*case "$or":
 		return Or{}
 	case "$nin":
@@ -102,6 +74,6 @@ func NewOperator(cmd string) Operator {
 	case "$size":
 		return Size{}*/
 	default:
-		return &Eq{}
+		return &Eq{d}
 	}
 }
