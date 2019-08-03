@@ -5,15 +5,22 @@ import (
 	"strings"
 )
 
-type In struct{}
+type In struct {
+	DefaultOperator
+}
 
 func (i In) Name() string {
 	return "$in"
 }
 
-func (i In) Match(expected, actual interface{}) (bool, error) {
-	ok, found := i.includeElement(expected, actual)
-	return ok && found, nil
+func (i In) Do() interface{} {
+	actual, ok := i.Record.GetByField(i.Field)
+	if !ok {
+		return false
+	}
+
+	ok, found := i.includeElement(i.Expected, actual)
+	return ok && found
 }
 
 // todo rewrite

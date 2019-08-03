@@ -10,7 +10,11 @@ type Eq struct {
 }
 
 func (e Eq) Do() interface{} {
-	return e.objectsAreEqual(e.Expected, e.Record[e.Field])
+	value, ok := e.Record.GetByField(e.Field)
+	if !ok {
+		return false
+	}
+	return e.objectsAreEqual(e.Expected, value)
 }
 
 func (e Eq) objectsAreEqual(expected, actual interface{}) bool {

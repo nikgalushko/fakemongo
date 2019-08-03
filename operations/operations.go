@@ -59,12 +59,12 @@ func NewOperator(cmd string, v interface{}, f string, args []Expression, r colle
 		return &Lte{d}
 	case "$set":
 		return &Set{d}
+	case "$in":
+		return &In{d}
 	/*case "$or":
 		return Or{}
 	case "$nin":
 		return Nin{}
-	case "$in":
-		return In{}
 	case "$ne":
 		return Ne{}
 	case "$exists":

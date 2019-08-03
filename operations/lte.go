@@ -5,7 +5,10 @@ type Lte struct {
 }
 
 func (l Lte) Do() interface{} {
-	actual := l.Record[l.Field]
+	actual, ok := l.Record.GetByField(l.Field)
+	if !ok {
+		return false
+	}
 	cmp, ok := compare(actual, l.Expected)
 	return ok && (cmp == lessThan || cmp == equal)
 }

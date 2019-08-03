@@ -1,6 +1,9 @@
 package collection
 
-import "github.com/globalsign/mgo/bson"
+import (
+	"github.com/globalsign/mgo/bson"
+	"strings"
+)
 
 type Record bson.M
 
@@ -22,24 +25,25 @@ func (r Record) WithFields(fields bson.M) Record {
 	return ret
 }
 
-/*
-type OperatorExpression struct {
-	Cmd                    operations.Operator
-	Value                  interface{}
-	Field                  string
-	SubOperatorExpressions []OperatorExpression
-}
+func (r Record) GetByField(f string) (interface{}, bool) {
+	fields := strings.Split(f, ".")
+	rec := bson.M(r)
 
-*/
+	for i := 0; i < len(fields); i++ {
+		v, ok := rec[fields[i]]
+		if !ok {
+			return nil, false
+		}
 
-/*func (r Record) MatchAll(expressions []Expression) bool {
-	for _, e := range expressions {
-		op := e.Operator
-		ret, _ := op.Cmd.Match(op.Value, r[op.Field])
-		if !ret {
-			return false
+		if i < (len(fields) - 1) {
+			rec, ok = v.(bson.M)
+			if !ok {
+				return nil, false
+			}
+		} else {
+			return v, ok
 		}
 	}
 
-	return true
-}*/
+	return nil, false
+}

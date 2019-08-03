@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var testData = []Record{
+var testData = &[]Record{
 	{"a": 1, "b": 2},
 	{"c": 3, "d": 4, "e": "test string"},
 	{"f": 0.2, "h": 0, "a": 5},
@@ -39,7 +39,7 @@ func TestCursor_Current(t *testing.T) {
 	assert.NoError(t, err1)
 	assert.NoError(t, err2)
 	assert.NoError(t, err3)
-	assert.Equal(t, testData[1], current)
+	assert.Equal(t, (*testData)[1], current)
 }
 
 func TestCursor_HasNext(t *testing.T) {

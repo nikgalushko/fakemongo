@@ -5,7 +5,7 @@ type Set struct {
 }
 
 func (s Set) Do() interface{} {
-	s.Record[s.Field] = s.Expected
+	s.Record[s.Field] = s.Expected // todo dot notation
 	return s.Record
 }
 

@@ -61,6 +61,16 @@ func TestFinder_One_ElemMatch_ArrayOfObjects(t *testing.T) {
 	assert.Equal(t, utils.ToSlice(testData[6]["arr"]), utils.ToSlice(m["arr"]))
 }
 
+func TestFinder_One_DotNotation(t *testing.T) {
+	f := NewFinder(bson.M{"obj.f": bson.M{"$gt": 18}}, cursor())
+	m := make(bson.M)
+	err := f.One(&m)
+
+	a := assert.New(t)
+	a.NoError(err)
+	a.Equal(testData[4], collection.Record(m))
+}
+
 func cursor() *collection.Cursor {
 	return collection.NewCursor(&testData)
 }

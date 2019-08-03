@@ -5,7 +5,7 @@ type Exists struct {
 }
 
 func (e Exists) Do() interface{} {
-	_, ok := e.Record[e.Field]
+	_, ok := e.Record.GetByField(e.Field)
 	return Eq{}.objectsAreEqual(e.Expected, ok)
 }
 

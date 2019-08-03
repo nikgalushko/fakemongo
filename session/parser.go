@@ -22,8 +22,7 @@ func (p SelectorParser) ParseQuery(query bson.M) []operations.Expression {
 				e = bson.M{k: expression}
 			}
 			result = append(result, p.ParseOperatorExpression(e))
-		case collection.DotNotation:
-		case collection.Literal:
+		case collection.DotNotation, collection.Literal:
 			op := p.ParseLiteralSubQuery(expression)
 			op.Field = k
 			result = append(result, op)
