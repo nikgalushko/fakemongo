@@ -19,8 +19,10 @@ func (i In) Do() interface{} {
 		return false
 	}
 
-	ok, found := i.includeElement(i.Expected, actual)
-	return ok && found
+	return applyTo(func(expected, actual interface{}) bool {
+		ok, found := i.includeElement(expected, actual)
+		return ok && found
+	}, i.Expected, actual)
 }
 
 // todo rewrite

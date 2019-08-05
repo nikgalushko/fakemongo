@@ -10,8 +10,11 @@ func (l Lt) Do() interface{} {
 		return false
 	}
 
-	cmp, ok := compare(actual, l.Expected)
-	return ok && cmp == lessThan
+	return applyTo(func(expected, actual interface{}) bool {
+		cmp, ok := compare(actual, expected)
+		return ok && cmp == lessThan
+	}, l.Expected, actual)
+
 }
 
 func (l Lt) Name() string {

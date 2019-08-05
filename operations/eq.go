@@ -10,11 +10,12 @@ type Eq struct {
 }
 
 func (e Eq) Do() interface{} {
-	value, ok := e.Record.GetByField(e.Field)
+	actual, ok := e.Record.GetByField(e.Field)
 	if !ok {
 		return false
 	}
-	return e.objectsAreEqual(e.Expected, value)
+
+	return applyTo(e.objectsAreEqual, e.Expected, actual)
 }
 
 func (e Eq) objectsAreEqual(expected, actual interface{}) bool {
@@ -39,4 +40,33 @@ func (e Eq) objectsAreEqual(expected, actual interface{}) bool {
 
 func (e Eq) Name() string {
 	return "$eq"
+}
+
+func isSlice(i interface{}) bool {
+	if i == nil {
+		return false
+	}
+
+	t := reflect.TypeOf(i).Kind()
+	return t == reflect.Slice || t == reflect.Array
+}
+
+func applyTo(f func(interface{}, interface{}) bool, args ...interface{}) bool {
+	expected := args[0]
+	actual := args[1]
+
+	var value []interface{}
+	if isSlice(actual) {
+		value = actual.([]interface{})
+	} else {
+		value = append(value, actual)
+	}
+
+	for _, v := range value {
+		if f(expected, v) {
+			return true
+		}
+	}
+
+	return false
 }

@@ -14,8 +14,9 @@ var testData = []collection.Record{
 	{"f": 10, "arr": []interface{}{"t", "e", "s", "t"}},
 	{"e": 4},
 	{"f": 12, "obj": bson.M{"e": []interface{}{1, 2, 3}, "f": 18.2}, "e": 5},
-	{"e": 5, "arr": []bson.M{{"price": 12}, {"price": 14}}, "shop": "#1"},
-	{"e": 7, "arr": []bson.M{{"price": 45, "g": 14}, {"price": 36, "g": 16}}, "shop": "#2"},
+	{"e": 5, "arr": []interface{}{bson.M{"price": 12}, bson.M{"price": 14}}, "shop": "#1"},
+	{"e": 7, "arr": []interface{}{bson.M{"price": 45, "g": 14}, bson.M{"price": 36, "g": 16}}, "shop": "#2"},
+	{"h": 19324, "arr": []interface{}{9, 4, 5, 1}, "car": "#3"},
 }
 
 func TestFinder_One_SimpleFields(t *testing.T) {
@@ -69,6 +70,46 @@ func TestFinder_One_DotNotation(t *testing.T) {
 	a := assert.New(t)
 	a.NoError(err)
 	a.Equal(testData[4], collection.Record(m))
+}
+
+func TestFinder_One_DotNotation_Array_Eq(t *testing.T) {
+	f := NewFinder(bson.M{"arr.price": 12}, cursor())
+	m := make(bson.M)
+	err := f.One(&m)
+
+	a := assert.New(t)
+	a.NoError(err)
+	a.Equal(testData[5], collection.Record(m))
+}
+
+func TestFinder_One_DotNotation_Array_Gt(t *testing.T) {
+	f := NewFinder(bson.M{"arr.price": bson.M{"$gt": 40}}, cursor())
+	m := make(bson.M)
+	err := f.One(&m)
+
+	a := assert.New(t)
+	a.NoError(err)
+	a.Equal(testData[6], collection.Record(m))
+}
+
+func TestFinder_One_In(t *testing.T) {
+	f := NewFinder(bson.M{"car": bson.M{"$in": []string{"#1", "2", "#3"}}}, cursor())
+	m := make(bson.M)
+	err := f.One(&m)
+
+	a := assert.New(t)
+	a.NoError(err)
+	a.Equal(testData[7], collection.Record(m))
+}
+
+func TestFinder_One_DotNotation_In(t *testing.T) {
+	f := NewFinder(bson.M{"arr.price": bson.M{"$in": []int{40, 41, 44, 36}}}, cursor())
+	m := make(bson.M)
+	err := f.One(&m)
+
+	a := assert.New(t)
+	a.NoError(err)
+	a.Equal(testData[6], collection.Record(m))
 }
 
 func cursor() *collection.Cursor {

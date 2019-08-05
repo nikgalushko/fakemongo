@@ -9,8 +9,11 @@ func (g Gt) Do() interface{} {
 	if !ok {
 		return false
 	}
-	cmp, ok := compare(actual, g.Expected)
-	return ok && cmp == greaterThan
+
+	return applyTo(func(expected, actual interface{}) bool {
+		cmp, ok := compare(actual, expected)
+		return ok && cmp == greaterThan
+	}, g.Expected, actual)
 }
 
 func (g Gt) Name() string {

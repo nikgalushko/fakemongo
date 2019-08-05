@@ -9,8 +9,11 @@ func (g Gte) Do() interface{} {
 	if !ok {
 		return false
 	}
-	cmp, ok := compare(actual, g.Expected)
-	return ok && (cmp == greaterThan || cmp == equal)
+
+	return applyTo(func(expected, actual interface{}) bool {
+		cmp, ok := compare(actual, expected)
+		return ok && (cmp == greaterThan || cmp == equal)
+	}, g.Expected, actual)
 }
 
 func (g Gte) Name() string {
