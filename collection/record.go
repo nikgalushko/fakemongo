@@ -1,7 +1,9 @@
 package collection
 
 import (
+	"fakemongo/utils"
 	"github.com/globalsign/mgo/bson"
+	"reflect"
 	"strings"
 )
 
@@ -36,13 +38,43 @@ func (r Record) GetByField(f string) (interface{}, bool) {
 		}
 
 		if i < (len(fields) - 1) {
-			rec, ok = v.(bson.M)
-			if !ok {
+			switch v.(type) {
+			case bson.M:
+				rec = v.(bson.M)
+			case []bson.M, []interface{}:
+				var ret []interface{}
+				for _, el := range utils.ToSlice(v) {
+					var v interface{}
+					if el, ok := el.(bson.M); ok {
+						v, _ = Record(el).GetByField(strings.Join(fields[i+1:], "."))
+					}
+					if s, ok := toSlice(v); ok {
+						ret = append(ret, s...)
+					} else {
+						ret = append(ret, v)
+					}
+				}
+
+				return ret, true
+			default:
 				return nil, false
 			}
 		} else {
 			return v, ok
 		}
+	}
+
+	return nil, false
+}
+
+func toSlice(i interface{}) ([]interface{}, bool) {
+	if i == nil {
+		return nil, false
+	}
+
+	t := reflect.TypeOf(i).Kind()
+	if t == reflect.Slice || t == reflect.Array {
+		return i.([]interface{}), true
 	}
 
 	return nil, false

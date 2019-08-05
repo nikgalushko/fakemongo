@@ -36,3 +36,30 @@ func TestRecord_GetByField(t *testing.T) {
 	a.False(ok4)
 	a.Nil(v4)
 }
+
+func TestRecord_GetByField_Array(t *testing.T) {
+	data := bson.M{
+		"arr": []bson.M{
+			{"b": 1, "b2": 2},
+			{"b": 5, "b2": 4},
+			{"b2": 10, "b": bson.M{"b3_c": []bson.M{
+				{"b3_c_d": 5},
+				{"b3_c_d": 18},
+				{"b3_c_1": 1},
+			}}},
+		},
+		"b": bson.M{
+			"c": bson.M{
+				"d": bson.M{
+					"e": []int{1, 2, 3},
+				},
+			},
+		},
+	}
+
+	v1, ok1 := Record(data).GetByField("arr.b.b3_c.b3_c_d")
+	a := assert.New(t)
+
+	a.True(ok1)
+	a.Equal([]interface{}{nil, nil, 5, 18, nil}, v1)
+}
