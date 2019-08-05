@@ -23,9 +23,10 @@ func (p SelectorParser) ParseQuery(query bson.M) []operations.Expression {
 			}
 			result = append(result, p.ParseOperatorExpression(e))
 		case collection.DotNotation, collection.Literal:
-			op := p.ParseLiteralSubQuery(expression)
-			op.Field = k
-			result = append(result, op)
+			for _, op := range p.ParseLiteralSubQuery(expression) {
+				op.Field = k
+				result = append(result, op)
+			}
 		default:
 			panic(key)
 		}
@@ -34,20 +35,25 @@ func (p SelectorParser) ParseQuery(query bson.M) []operations.Expression {
 	return result
 }
 
-func (p SelectorParser) ParseLiteralSubQuery(query interface{}) operations.OperatorExpression {
+func (p SelectorParser) ParseLiteralSubQuery(query interface{}) []operations.OperatorExpression {
 	switch query.(type) {
 	case bson.M:
+		var ret []operations.OperatorExpression
 		for k, value := range query.(bson.M) {
 			if collection.Key(k).IsCmd() {
-				return p.ParseOperatorExpression(bson.M{k: value})
+				ret = append(ret, p.ParseOperatorExpression(bson.M{k: value}))
 			}
 		}
+		return ret
 	}
 
-	return operations.OperatorExpression{
-		Value: query,
-		Cmd:   "$eq",
+	return []operations.OperatorExpression{
+		{
+			Value: query,
+			Cmd:   "$eq",
+		},
 	}
+
 }
 
 func (p SelectorParser) ParseOperatorExpression(query bson.M) operations.OperatorExpression {

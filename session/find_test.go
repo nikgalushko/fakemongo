@@ -13,7 +13,7 @@ var testData = []collection.Record{
 	{"c": true, "obj": bson.M{"f": 15.6}},
 	{"f": 10, "arr": []interface{}{"t", "e", "s", "t"}},
 	{"e": 4},
-	{"f": 12, "obj": bson.M{"e": []interface{}{1, 2, 3}, "f": 18.2}, "e": 5},
+	{"obj": bson.M{"e": []interface{}{1, 2, 3}, "f": 18.2}, "e": 5, "f": 12},
 	{"e": 5, "arr": []interface{}{bson.M{"price": 12}, bson.M{"price": 14}}, "shop": "#1"},
 	{"e": 7, "arr": []interface{}{bson.M{"price": 45, "g": 14}, bson.M{"price": 36, "g": 16}}, "shop": "#2"},
 	{"h": 19324, "arr": []interface{}{9, 4, 5, 1}, "car": "#3"},
@@ -63,7 +63,7 @@ func TestFinder_One_ElemMatch_ArrayOfObjects(t *testing.T) {
 }
 
 func TestFinder_One_DotNotation(t *testing.T) {
-	f := NewFinder(bson.M{"obj.f": bson.M{"$gt": 18}}, cursor())
+	f := NewFinder(bson.M{"obj.f": bson.M{"$lt": 20, "$gt": 18}}, cursor())
 	m := make(bson.M)
 	err := f.One(&m)
 
