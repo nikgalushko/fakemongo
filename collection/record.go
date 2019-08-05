@@ -4,6 +4,7 @@ import (
 	"fakemongo/utils"
 	"github.com/globalsign/mgo/bson"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -43,10 +44,15 @@ func (r Record) GetByField(f string) (interface{}, bool) {
 				rec = v.(bson.M)
 			case []bson.M, []interface{}:
 				var ret []interface{}
-				for _, el := range utils.ToSlice(v) {
+				arr := utils.ToSlice(v)
+				if index, err := strconv.Atoi(fields[i+1]); err == nil {
+					arr = []interface{}{arr[index]} // todo check array size
+					i += 1
+				}
+				for _, el := range arr {
 					var v interface{}
-					if el, ok := el.(bson.M); ok {
-						v, _ = Record(el).GetByField(strings.Join(fields[i+1:], "."))
+					if obj, ok := el.(bson.M); ok {
+						v, _ = Record(obj).GetByField(strings.Join(fields[i+1:], "."))
 					}
 					if s, ok := toSlice(v); ok {
 						ret = append(ret, s...)

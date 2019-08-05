@@ -63,3 +63,22 @@ func TestRecord_GetByField_Array(t *testing.T) {
 	a.True(ok1)
 	a.Equal([]interface{}{nil, nil, 5, 18, nil}, v1)
 }
+
+func TestRecord_GetByField_Array_Index(t *testing.T) {
+	data := bson.M{
+		"arr": []bson.M{
+			{"b": 1, "b2": 2},
+			{"b": 5, "b2": 4},
+			{"b2": 10, "b": bson.M{"b3_c": []bson.M{
+				{"b3_c_d": 15},
+				{"b3_c_d": 18},
+				{"b3_c_1": 11},
+			}}},
+		}}
+
+	v1, ok1 := Record(data).GetByField("arr.2.b.b3_c.2.b3_c_1")
+	a := assert.New(t)
+
+	a.True(ok1)
+	a.Equal([]interface{}{11}, v1)
+}
