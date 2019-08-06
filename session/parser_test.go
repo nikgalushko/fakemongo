@@ -150,3 +150,22 @@ func TestUpdateParameterParser_ParseUpdate(t *testing.T) {
 	a.Equal("scores", each.Field)
 	a.Equal([]int{90, 92, 85}, each.Value)
 }
+
+func TestUpdateParameterParser_ParseUpdate_MultiCondition(t *testing.T) {
+	p := UpdateParameterParser{}
+
+	expressions := p.ParseUpdate(bson.M{"$push": bson.M{"scores": 12, "cars": "car#2"}})
+	a := assert.New(t)
+
+	a.Len(expressions, 2)
+
+	scores := expressions[0]
+	a.Equal("scores", scores.Field)
+	a.Equal("$push", scores.Cmd)
+	a.Equal(12, scores.Value)
+
+	cars := expressions[1]
+	a.Equal("cars", cars.Field)
+	a.Equal("$push", cars.Cmd)
+	a.Equal("car#2", cars.Value)
+}
