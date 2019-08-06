@@ -61,6 +61,10 @@ func NewOperator(cmd string, v interface{}, f string, args []Expression, r colle
 		return &Set{d}
 	case "$in":
 		return &In{d}
+	case "$push":
+		return &Push{d}
+	case "$each":
+		return &Each{d}
 	/*case "$or":
 		return Or{}
 	case "$nin":

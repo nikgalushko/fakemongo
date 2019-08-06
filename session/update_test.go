@@ -12,9 +12,7 @@ var testDataUpd = []collection.Record{
 	{"c": true, "obj": bson.M{"f": 15.6}},
 	{"f": 10, "arr": []interface{}{"t", "e", "s", "t"}},
 	{"e": 4},
-	{"f": 12, "obj": bson.M{"e": []interface{}{1, 2, 3}, "f": 18.2}, "e": 5},
-	{"e": 5, "arr": []bson.M{{"price": 12}, {"price": 14}}, "shop": "#1"},
-	{"e": 7, "arr": []bson.M{{"price": 45, "g": 14}, {"price": 36, "g": 16}}, "shop": "#2"},
+	{"f": 12, "obj": []interface{}{1, 2, 3}, "e": 5},
 }
 
 func TestUpdater_Update(t *testing.T) {
@@ -25,4 +23,24 @@ func TestUpdater_Update(t *testing.T) {
 	err := u.Update(query, update)
 	assert.NoError(t, err)
 	assert.Equal(t, collection.Record{"e": 4, "e2": 5, "g3": "test"}, testDataUpd[3])
+}
+
+func TestUpdater_Update_Push(t *testing.T) {
+	query := bson.M{"f": 10, "arr": bson.M{"$exists": true}}
+	update := bson.M{"$push": bson.M{"arr": "2"}}
+	u := Updater{c: collection.NewCursor(&testDataUpd)}
+
+	err := u.Update(query, update)
+	assert.NoError(t, err)
+	assert.Equal(t, collection.Record{"f": 10, "arr": []interface{}{"t", "e", "s", "t", "2"}}, testDataUpd[2])
+}
+
+func TestUpdater_Update_Push_Each(t *testing.T) {
+	query := bson.M{"f": 12}
+	update := bson.M{"$push": bson.M{"obj": bson.M{"$each": []int{90, 91, 92}}}}
+	u := Updater{c: collection.NewCursor(&testDataUpd)}
+
+	err := u.Update(query, update)
+	assert.NoError(t, err)
+	assert.Equal(t, collection.Record{"f": 12, "obj": []interface{}{1, 2, 3, 90, 91, 92}, "e": 5}, testDataUpd[4])
 }

@@ -98,20 +98,49 @@ func (p UpdateParameterParser) ParseUpdate(update bson.M) []operations.OperatorE
 		key := collection.Key(k)
 		if key.IsCmd() {
 			switch k {
-			case "$set":
+			case "$set", "$push":
 				fields := v.(bson.M)
 				var ops []operations.OperatorExpression
 				for f, v := range fields {
-					op := operations.OperatorExpression{Cmd: "$set"}
-					op.Value = v
+					op := operations.OperatorExpression{Cmd: k}
 					op.Field = f
+
+					if sub := p.ParseSubCmd(v); k == "$push" && len(sub) > 0 {
+						for i := 0; i < len(sub); i++ {
+							sub[i].Field = f
+							op.SubOperatorExpressions = append(op.SubOperatorExpressions, sub[i])
+						}
+					} else {
+						op.Value = v
+					}
 
 					ops = append(ops, op)
 				}
 				result = append(result, ops...)
+			default:
+				panic("unimplemented")
 			}
 		} else {
 			panic("unimplemented")
+		}
+	}
+
+	return result
+}
+
+func (p UpdateParameterParser) ParseSubCmd(v interface{}) []operations.OperatorExpression {
+	var result []operations.OperatorExpression
+	update, ok := v.(bson.M)
+	if !ok {
+		return nil
+	}
+	for k, v := range update {
+		switch k {
+		case "$each":
+			result = append(result, operations.OperatorExpression{
+				Cmd:   "$each",
+				Value: v,
+			})
 		}
 	}
 

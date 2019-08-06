@@ -130,3 +130,23 @@ func TestSelectorParser_ParseQuery_MultiIf(t *testing.T) {
 	a.Equal("$lt", lt.Cmd)
 	a.Equal(20, lt.Value)
 }
+
+func TestUpdateParameterParser_ParseUpdate(t *testing.T) {
+	p := UpdateParameterParser{}
+
+	expressions := p.ParseUpdate(bson.M{"$push": bson.M{"scores": bson.M{"$each": []int{90, 92, 85}}}})
+	a := assert.New(t)
+
+	a.Len(expressions, 1)
+
+	push := expressions[0]
+	a.Equal("$push", push.Cmd)
+	a.Equal("scores", push.Field)
+	a.Nil(push.Value)
+	a.Len(push.SubOperatorExpressions, 1)
+
+	each := push.SubOperatorExpressions[0].(operations.OperatorExpression)
+	a.Equal("$each", each.Cmd)
+	a.Equal("scores", each.Field)
+	a.Equal([]int{90, 92, 85}, each.Value)
+}
