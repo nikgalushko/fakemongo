@@ -112,7 +112,7 @@ func TestSelectorParser_ParseQuery_DotNotation(t *testing.T) {
 	a.Equal("$eq", e.Cmd)
 }
 
-func TestSelectorParser_ParseQuery_MultiIf(t *testing.T) {
+func TestSelectorParser_ParseQuery_MultiCondition(t *testing.T) {
 	p := SelectorParser{}
 
 	expressions := p.ParseQuery(bson.M{"c": bson.M{"$gt": 10, "$lt": 20}})
