@@ -1,6 +1,6 @@
 package operations
 
-import "fakemongo/collection"
+import "github.com/jetuuuu/fakemongo/collection"
 
 type Expression interface {
 	Match(collection.Record) bool

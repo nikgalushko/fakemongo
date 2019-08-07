@@ -1,8 +1,8 @@
 package collection
 
 import (
-	"fakemongo/utils"
 	"github.com/globalsign/mgo/bson"
+	"github.com/jetuuuu/fakemongo/utils"
 	"reflect"
 	"strconv"
 	"strings"

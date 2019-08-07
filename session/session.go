@@ -1,9 +1,9 @@
 package session
 
 import (
-	"fakemongo/collection"
 	"fmt"
 	"github.com/globalsign/mgo/bson"
+	"github.com/jetuuuu/fakemongo/collection"
 )
 
 type Session struct {

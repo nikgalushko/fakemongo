@@ -1,9 +1,9 @@
 package session
 
 import (
-	"fakemongo/collection"
-	"fakemongo/operations"
 	"github.com/globalsign/mgo/bson"
+	"github.com/jetuuuu/fakemongo/collection"
+	"github.com/jetuuuu/fakemongo/operations"
 )
 
 type SelectorParser struct{}
