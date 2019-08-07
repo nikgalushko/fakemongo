@@ -13,7 +13,7 @@ type Session struct {
 type Query interface {
 	One(interface{}) error
 	All(interface{}) error
-	Select(bson.M) Query
+	Select(interface{}) Query
 }
 
 func NewSession(collections []collection.Collection) Session {

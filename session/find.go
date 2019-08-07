@@ -24,8 +24,8 @@ func NewFinder(query bson.M, c *collection.Cursor) Finder {
 }
 
 // todo selector must be an interface{}
-func (f Finder) Select(selector bson.M) Query {
-	f.selector = selector
+func (f Finder) Select(selector interface{}) Query {
+	f.selector = selector.(bson.M)
 	return f
 }
 
