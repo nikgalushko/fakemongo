@@ -2,6 +2,7 @@ package session
 
 import (
 	"errors"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/jetuuuu/fakemongo/collection"
 	"github.com/jetuuuu/fakemongo/operations"
@@ -60,4 +61,12 @@ func (f Finder) One(result interface{}) error {
 
 func (f Finder) All(result interface{}) error {
 	panic("All is unimplemented")
+}
+
+func (f Finder) Apply(change mgo.Change, result interface{}) (*mgo.ChangeInfo, error) {
+	return nil, errors.New("unimplemented")
+}
+
+func (f Finder) Count() (int, error) {
+	return -1, errors.New("unimplemented")
 }

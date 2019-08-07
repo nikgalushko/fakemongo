@@ -2,6 +2,7 @@ package session
 
 import (
 	"fmt"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/jetuuuu/fakemongo/collection"
 )
@@ -14,6 +15,8 @@ type Query interface {
 	One(interface{}) error
 	All(interface{}) error
 	Select(interface{}) Query
+	Apply(mgo.Change, interface{}) (*mgo.ChangeInfo, error)
+	Count() (int, error)
 }
 
 func NewSession(collections []collection.Collection) Session {
