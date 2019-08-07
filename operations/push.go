@@ -1,6 +1,6 @@
 package operations
 
-import "fakemongo/utils"
+import "github.com/jetuuuu/fakemongo/utils"
 
 type Push struct {
 	DefaultOperator

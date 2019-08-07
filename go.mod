@@ -1,4 +1,4 @@
-module fakemongo
+module github.com/jetuuuu/fakemongo
 
 go 1.12
 

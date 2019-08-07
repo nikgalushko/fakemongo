@@ -2,9 +2,10 @@ package session
 
 import (
 	"errors"
-	"fakemongo/collection"
-	"fakemongo/operations"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"github.com/jetuuuu/fakemongo/collection"
+	"github.com/jetuuuu/fakemongo/operations"
 )
 
 type Finder struct {
@@ -24,8 +25,8 @@ func NewFinder(query bson.M, c *collection.Cursor) Finder {
 }
 
 // todo selector must be an interface{}
-func (f Finder) Select(selector bson.M) Query {
-	f.selector = selector
+func (f Finder) Select(selector interface{}) Query {
+	f.selector = selector.(bson.M)
 	return f
 }
 
@@ -60,4 +61,24 @@ func (f Finder) One(result interface{}) error {
 
 func (f Finder) All(result interface{}) error {
 	panic("All is unimplemented")
+}
+
+func (f Finder) Apply(change mgo.Change, result interface{}) (*mgo.ChangeInfo, error) {
+	return nil, errors.New("unimplemented")
+}
+
+func (f Finder) Count() (int, error) {
+	return -1, errors.New("unimplemented")
+}
+
+func (f Finder) Sort(fields ...string) Query {
+	panic("unimplemented")
+}
+
+func (f Finder) Limit(n int) Query {
+	panic("unimplemented")
+}
+
+func (f Finder) Collation(collation *mgo.Collation) Query {
+	panic("unimplemented")
 }

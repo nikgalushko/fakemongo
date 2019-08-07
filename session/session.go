@@ -1,9 +1,10 @@
 package session
 
 import (
-	"fakemongo/collection"
 	"fmt"
+	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"github.com/jetuuuu/fakemongo/collection"
 )
 
 type Session struct {
@@ -13,7 +14,12 @@ type Session struct {
 type Query interface {
 	One(interface{}) error
 	All(interface{}) error
-	Select(bson.M) Query
+	Select(interface{}) Query
+	Apply(mgo.Change, interface{}) (*mgo.ChangeInfo, error)
+	Count() (int, error)
+	Sort(...string) Query
+	Limit(int) Query
+	Collation(*mgo.Collation) Query
 }
 
 func NewSession(collections []collection.Collection) Session {

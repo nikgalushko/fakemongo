@@ -1,9 +1,9 @@
 package session
 
 import (
-	"fakemongo/collection"
-	"fakemongo/utils"
 	"github.com/globalsign/mgo/bson"
+	"github.com/jetuuuu/fakemongo/collection"
+	"github.com/jetuuuu/fakemongo/utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

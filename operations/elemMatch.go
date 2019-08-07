@@ -1,9 +1,9 @@
 package operations
 
 import (
-	"fakemongo/collection"
 	"fmt"
 	"github.com/globalsign/mgo/bson"
+	"github.com/jetuuuu/fakemongo/collection"
 	"reflect"
 )
 

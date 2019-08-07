@@ -1,8 +1,8 @@
 package session
 
 import (
-	"fakemongo/operations"
 	"github.com/globalsign/mgo/bson"
+	"github.com/jetuuuu/fakemongo/operations"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
