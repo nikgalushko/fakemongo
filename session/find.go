@@ -78,3 +78,7 @@ func (f Finder) Sort(fields ...string) Query {
 func (f Finder) Limit(n int) Query {
 	panic("unimplemented")
 }
+
+func (f Finder) Collation(collation *mgo.Collation) Query {
+	panic("unimplemented")
+}

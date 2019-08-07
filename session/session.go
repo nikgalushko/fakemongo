@@ -19,6 +19,7 @@ type Query interface {
 	Count() (int, error)
 	Sort(...string) Query
 	Limit(int) Query
+	Collation(*mgo.Collation) Query
 }
 
 func NewSession(collections []collection.Collection) Session {
