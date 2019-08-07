@@ -17,6 +17,8 @@ type Query interface {
 	Select(interface{}) Query
 	Apply(mgo.Change, interface{}) (*mgo.ChangeInfo, error)
 	Count() (int, error)
+	Sort(...string) Query
+	Limit(int) Query
 }
 
 func NewSession(collections []collection.Collection) Session {

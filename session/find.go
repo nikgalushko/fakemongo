@@ -70,3 +70,11 @@ func (f Finder) Apply(change mgo.Change, result interface{}) (*mgo.ChangeInfo, e
 func (f Finder) Count() (int, error) {
 	return -1, errors.New("unimplemented")
 }
+
+func (f Finder) Sort(fields ...string) Query {
+	panic("unimplemented")
+}
+
+func (f Finder) Limit(n int) Query {
+	panic("unimplemented")
+}
