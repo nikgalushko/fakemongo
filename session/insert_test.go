@@ -25,12 +25,15 @@ func TestSession_Insert(t *testing.T) {
 
 	assert.Len(t, *s.data["c1"].Data, 3)
 
-	firstRecord, _ := c.Next()
+	firstRecord, err := c.Next()
+	assert.NoError(t, err)
 	assert.Equal(t, collection.Record{"e2": 1}, firstRecord)
 
-	secondRecord, _ := c.Next()
+	secondRecord, err := c.Next()
+	assert.NoError(t, err)
 	assert.Equal(t, collection.Record{"name": "test"}, secondRecord)
 
-	thirdRecord, _ := c.Next()
+	thirdRecord, err := c.Next()
+	assert.NoError(t, err)
 	assert.Equal(t, collection.Record{"_bson_": 15}, thirdRecord)
 }

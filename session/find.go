@@ -48,6 +48,9 @@ func (f Finder) One(result interface{}) error {
 			continue
 		}
 
+		if result == nil {
+			return nil
+		}
 		r = r.WithFields(f.selector)
 		data, err := bson.Marshal(r)
 		if err != nil {

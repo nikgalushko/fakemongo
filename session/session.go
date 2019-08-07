@@ -1,10 +1,10 @@
 package session
 
 import (
-	"fmt"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/jetuuuu/fakemongo/collection"
+	"github.com/jetuuuu/fakemongo/utils"
 )
 
 type Session struct {
@@ -48,22 +48,34 @@ func (s Session) Insert(collectionName string, docs ...interface{}) error {
 		case bson.M:
 			item = d.(bson.M)
 		default:
-			data, err := bson.Marshal(d)
+			converted, err := utils.ToBsonM(d)
 			if err != nil {
 				return err
 			}
 
-			err = bson.Unmarshal(data, &item)
-			if err != nil {
-				return err
-			}
-
-			fmt.Println(item)
+			item = converted
 		}
 
 		c := s.data[collectionName].Cursor()
 		c.Insert(collection.Record(item))
 	}
 
+	return nil
+}
+
+func (s Session) Remove(collectionName string, selector interface{}) error {
+	query, err := utils.ToBsonM(selector)
+	if err != nil {
+		return err
+	}
+
+	c := s.data[collectionName].Cursor()
+	f := NewFinder(query, c)
+
+	if err := f.One(nil); err != nil {
+		return err
+	}
+
+	f.c.RemoveCurrent()
 	return nil
 }

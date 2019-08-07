@@ -78,3 +78,8 @@ func (c *Cursor) Insert(r Record) {
 func (c Cursor) HasNext() bool {
 	return c.currentPosition < uint(len(*c.data))
 }
+
+func (c Cursor) RemoveCurrent() {
+	data := *c.data
+	*c.data = append(data[:c.prevPosition], data[c.prevPosition+1:]...)
+}
