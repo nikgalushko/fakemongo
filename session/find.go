@@ -6,6 +6,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/jetuuuu/fakemongo/collection"
 	"github.com/jetuuuu/fakemongo/operations"
+	"reflect"
 )
 
 type Finder struct {
@@ -31,8 +32,51 @@ func (f Finder) Select(selector interface{}) Query {
 }
 
 func (f Finder) One(result interface{}) error {
+	arr, err := f.find(true)
+	if err != nil {
+		return err
+	}
+
+	if result == nil {
+		return nil
+	}
+
+	data, err := bson.Marshal(arr[0])
+	if err != nil {
+		return err
+	}
+	return bson.Unmarshal(data, result)
+}
+
+func (f Finder) All(result interface{}) error {
+	arr, err := f.find(false)
+	if err != nil {
+		return err
+	}
+
+	valuePtr := reflect.ValueOf(result)
+	value := valuePtr.Elem()
+
+	for _, r := range arr {
+		data, err := bson.Marshal(r)
+		if err != nil {
+			return err
+		}
+		var item interface{}
+		err = bson.Unmarshal(data, &item)
+		if err != nil {
+			return err
+		}
+		value.Set(reflect.Append(value, reflect.ValueOf(item)))
+	}
+
+	return nil
+}
+
+func (f Finder) find(one bool) ([]collection.Record, error) {
 	var (
 		r   collection.Record
+		ret []collection.Record
 		err error
 	)
 	for ; err == nil; r, err = f.c.Next() {
@@ -44,26 +88,21 @@ func (f Finder) One(result interface{}) error {
 			}
 		}
 
-		if !matched {
+		if !matched || r == nil {
 			continue
 		}
 
-		if result == nil {
-			return nil
+		ret = append(ret, r.WithFields(f.selector))
+		if one {
+			break
 		}
-		r = r.WithFields(f.selector)
-		data, err := bson.Marshal(r)
-		if err != nil {
-			return err
-		}
-		return bson.Unmarshal(data, result)
 	}
 
-	return errors.New("not found")
-}
+	if len(ret) == 0 {
+		return nil, errors.New("not found")
+	}
 
-func (f Finder) All(result interface{}) error {
-	panic("All is unimplemented")
+	return ret, nil
 }
 
 func (f Finder) Apply(change mgo.Change, result interface{}) (*mgo.ChangeInfo, error) {
@@ -71,7 +110,8 @@ func (f Finder) Apply(change mgo.Change, result interface{}) (*mgo.ChangeInfo, e
 }
 
 func (f Finder) Count() (int, error) {
-	return -1, errors.New("unimplemented")
+	arr, err := f.find(false)
+	return len(arr), err
 }
 
 func (f Finder) Sort(fields ...string) Query {

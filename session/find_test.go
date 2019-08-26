@@ -112,6 +112,27 @@ func TestFinder_One_DotNotation_In(t *testing.T) {
 	a.Equal(testData[6], collection.Record(m))
 }
 
+func TestFinder_All(t *testing.T) {
+	f := NewFinder(bson.M{"f": bson.M{"$exists": true}}, cursor())
+	q := f.Select(bson.M{"f": 1})
+
+	var m []bson.M
+	err := q.All(&m)
+
+	a := assert.New(t)
+	a.NoError(err)
+	a.Equal([]bson.M{{"f": 10}, {"f": 10}, {"f": 12}}, m)
+}
+
+func TestFinder_Count(t *testing.T) {
+	f := NewFinder(bson.M{}, cursor())
+	c, err := f.Count()
+
+	a := assert.New(t)
+	a.NoError(err)
+	a.Equal(len(testData), c)
+}
+
 func cursor() *collection.Cursor {
 	return collection.NewCursor(&testData)
 }
