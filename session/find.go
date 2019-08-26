@@ -62,12 +62,14 @@ func (f Finder) All(result interface{}) error {
 		if err != nil {
 			return err
 		}
-		var item interface{}
-		err = bson.Unmarshal(data, &item)
+		v := reflect.New(reflect.TypeOf(result).Elem().Elem())
+		i := v.Interface()
+		err = bson.Unmarshal(data, i)
 		if err != nil {
 			return err
 		}
-		value.Set(reflect.Append(value, reflect.ValueOf(item)))
+
+		value.Set(reflect.Append(value, v.Elem()))
 	}
 
 	return nil

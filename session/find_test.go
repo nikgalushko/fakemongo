@@ -113,15 +113,19 @@ func TestFinder_One_DotNotation_In(t *testing.T) {
 }
 
 func TestFinder_All(t *testing.T) {
+	type F struct {
+		F int `bson:"f"`
+	}
+
 	f := NewFinder(bson.M{"f": bson.M{"$exists": true}}, cursor())
 	q := f.Select(bson.M{"f": 1})
 
-	var m []bson.M
+	var m []F
 	err := q.All(&m)
 
 	a := assert.New(t)
 	a.NoError(err)
-	a.Equal([]bson.M{{"f": 10}, {"f": 10}, {"f": 12}}, m)
+	a.Equal([]F{{F: 10}, {F: 10}, {F: 12}}, m)
 }
 
 func TestFinder_Count(t *testing.T) {
