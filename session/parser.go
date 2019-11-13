@@ -98,7 +98,7 @@ func (p UpdateParameterParser) ParseUpdate(update bson.M) []operations.OperatorE
 		key := collection.Key(k)
 		if key.IsCmd() {
 			switch k {
-			case "$set", "$push":
+			case "$set", "$push", "$setOnInsert":
 				fields := v.(bson.M)
 				var ops []operations.OperatorExpression
 				for f, v := range fields {

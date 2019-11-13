@@ -9,6 +9,8 @@ import (
 	"reflect"
 )
 
+var notFoundError = errors.New("not found")
+
 type Finder struct {
 	query       bson.M // todo query must be an interface{}
 	foundAt     int
@@ -101,7 +103,7 @@ func (f Finder) find(one bool) ([]collection.Record, error) {
 	}
 
 	if len(ret) == 0 {
-		return nil, errors.New("not found")
+		return nil, notFoundError
 	}
 
 	return ret, nil

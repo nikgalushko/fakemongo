@@ -26,9 +26,26 @@ func (o OperatorExpression) Update(record collection.Record) collection.Record {
 	return cmd.Do().(collection.Record)
 }
 
+type KindOperation uint8
+
+const (
+	Unknow KindOperation = iota
+	Update
+	Insert
+)
+
+func (o OperatorExpression) Upsert(record collection.Record, kind KindOperation) collection.Record {
+	cmd := NewOperator(o.Cmd, o.Value, o.Field, o.SubOperatorExpressions, record)
+	if kind == Update && cmd.onlyForInsert() {
+		return record
+	}
+	return cmd.Do().(collection.Record)
+}
+
 type Operator interface {
 	Do() interface{}
 	Name() string
+	onlyForInsert() bool
 }
 
 type DefaultOperator struct {
@@ -36,6 +53,10 @@ type DefaultOperator struct {
 	Field                  string
 	SubOperatorExpressions []Expression
 	Record                 collection.Record
+}
+
+func (o DefaultOperator) onlyForInsert() bool {
+	return false
 }
 
 func NewOperator(cmd string, v interface{}, f string, args []Expression, r collection.Record) Operator {
@@ -58,7 +79,9 @@ func NewOperator(cmd string, v interface{}, f string, args []Expression, r colle
 	case "$lte":
 		return &Lte{d}
 	case "$set":
-		return &Set{d}
+		return &Set{d, false}
+	case "$setOnInsert":
+		return &Set{d, true}
 	case "$in":
 		return &In{d}
 	case "$push":

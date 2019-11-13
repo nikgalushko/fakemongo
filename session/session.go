@@ -1,9 +1,11 @@
 package session
 
 import (
+	"errors"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/jetuuuu/fakemongo/collection"
+	"github.com/jetuuuu/fakemongo/operations"
 	"github.com/jetuuuu/fakemongo/utils"
 )
 
@@ -39,6 +41,38 @@ func (s Session) Find(collectionName string, query bson.M) Query {
 func (s Session) Update(collectionName string, query, update bson.M) error {
 	u := Updater{c: s.data[collectionName].Cursor()}
 	return u.Update(query, update)
+}
+
+// todo query/set must be an interface{}
+func (s Session) Upsert(collectionName string, query, update bson.M) error {
+	c := s.data[collectionName].Cursor()
+	f := NewFinder(query, c)
+
+	r := make(collection.Record)
+	err := f.One(&r)
+	needToInsert := false
+	if errors.Is(err, notFoundError) {
+		needToInsert = true
+	} else if err != nil {
+		return err
+	}
+
+	parsedOperations := UpdateParameterParser{}.ParseUpdate(update)
+	kind := operations.Update
+	if needToInsert {
+		kind = operations.Insert
+	}
+	for _, op := range parsedOperations {
+		r = op.Upsert(r, kind)
+	}
+
+	if needToInsert {
+		return s.Insert(collectionName, r)
+	} else {
+		c.SetCurrent(r)
+	}
+
+	return nil
 }
 
 func (s Session) Insert(collectionName string, docs ...interface{}) error {

@@ -2,6 +2,7 @@ package operations
 
 type Set struct {
 	DefaultOperator
+	insertable bool
 }
 
 func (s Set) Do() interface{} {
@@ -11,4 +12,8 @@ func (s Set) Do() interface{} {
 
 func (s Set) Name() string {
 	return "$set"
+}
+
+func (s Set) onlyForInsert() bool {
+	return s.insertable
 }

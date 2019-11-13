@@ -46,6 +46,29 @@ func TestUpdater_Update_Push_Each(t *testing.T) {
 	assert.Equal(t, collection.Record{"f": 12, "obj": []interface{}{1, 2, 3, 90, 91, 92}, "e": 5}, testDataUpd[4])
 }
 
+func TestSession_Upsert(t *testing.T) {
+	query := bson.M{"version": 7}
+	update := bson.M{"$set": bson.M{"a": 1}, "$setOnInsert": bson.M{"version": 7}}
+
+	c := collection.NewCollection("d", []collection.Record{
+		{
+			"f": "update",
+		},
+	})
+
+	s := NewSession([]collection.Collection{c})
+
+	err := s.Upsert("d", query, update)
+	assert.NoError(t, err)
+	assert.Equal(t, collection.Record{"a": 1, "version": 7}, (*s.data["d"].Data)[1])
+
+	update = bson.M{"$set": bson.M{"a": 14}, "$setOnInsert": bson.M{"version": 18}}
+	err = s.Upsert("d", query, update)
+
+	assert.Equal(t, collection.Record{"a": 14, "version": 7}, (*s.data["d"].Data)[1])
+}
+
+/*
 func TestUpdater_Update_Push_DotNotation(t *testing.T) {
 	query := bson.M{"test": "#dot_notation"}
 	update := bson.M{"$push": bson.M{"obj.arr": "2"}}
@@ -55,3 +78,14 @@ func TestUpdater_Update_Push_DotNotation(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, collection.Record{"test": "#dot_notation", "obj": bson.M{"arr": []interface{}{12, "2"}}}, testDataUpd[5])
 }
+
+func TestUpdater_Update_Set_DotNotation(t *testing.T) {
+	query := bson.M{"test": "#dot_notation"}
+	update := bson.M{"$set": bson.M{"obj.field": 15}}
+	u := Updater{c: collection.NewCursor(&testDataUpd)}
+
+	err := u.Update(query, update)
+	assert.NoError(t, err)
+	assert.Equal(t, collection.Record{"test": "#dot_notation", "obj": bson.M{"field": 15, "arr": []interface{}{12, "2"}}}, testDataUpd[5])
+}
+*/
